@@ -9,35 +9,18 @@ const validateCreateBooking = (req, res, next) => {
       error: "Invalid request",
     });
   }
-  if (!req.body.pnr) {
+  if (!req.body.from_schedule_id) {
     return res.status(client.BAD_REQUEST).json({
       data: null,
-      message: "PNR number is required.",
+      message: "Source Schedule Id is required.",
       success: false,
       error: "Invalid request",
     });
   }
-  if (!req.body.schedule_id) {
+  if (!req.body.to_schedule_id) {
     return res.status(client.BAD_REQUEST).json({
       data: null,
-      message: "Schedule Id is required.",
-      success: false,
-      error: "Invalid request",
-    });
-  }
-  if (!req.body.status) {
-    return res.status(client.BAD_REQUEST).json({
-      data: null,
-      message: "Booking Status is required.",
-      success: false,
-      error: "Invalid request",
-    });
-  }
-  if (!["booked", "cancelled"].includes(req.body.status)) {
-    return res.status(client.BAD_REQUEST).json({
-      data: null,
-      message:
-        "Invalid booking status. Allowed values are 'booked' or 'cancelled'",
+      message: "Destination Schedule Id is required.",
       success: false,
       error: "Invalid request",
     });
@@ -76,22 +59,6 @@ const validateCreateBooking = (req, res, next) => {
       data: null,
       message:
         "Invalid booking category. Allowed values are 'general', 'ladies', 'senior_citizen' or 'tatkal'",
-      success: false,
-      error: "Invalid request",
-    });
-  }
-  if (!req.body.passenger_id) {
-    return res.status(client.BAD_REQUEST).json({
-      data: null,
-      message: "Passenger Id is required.",
-      success: false,
-      error: "Invalid request",
-    });
-  }
-  if (!req.body.booked) {
-    return res.status(client.BAD_REQUEST).json({
-      data: null,
-      message: "Booking date is required.",
       success: false,
       error: "Invalid request",
     });

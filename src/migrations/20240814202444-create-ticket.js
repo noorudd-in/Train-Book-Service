@@ -17,7 +17,11 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false
       },
-      schedule_id: {
+      from_schedule_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
+      to_schedule_id: {
         type: Sequelize.INTEGER,
         allowNull: false
       },
