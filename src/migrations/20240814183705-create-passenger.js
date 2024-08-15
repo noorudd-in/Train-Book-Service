@@ -17,6 +17,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false
       },
+      p1_gender: {
+        type: Sequelize.ENUM('M', 'F', 'T'),
+        allowNull: false
+      },
       p1_status: {
         type: Sequelize.STRING,
         allowNull: false
@@ -27,6 +31,9 @@ module.exports = {
       p2_age: {
         type: Sequelize.INTEGER
       },
+      p2_gender: {
+        type: Sequelize.ENUM('M', 'F', 'T')
+      },
       p2_status: {
         type: Sequelize.STRING
       },
@@ -35,6 +42,9 @@ module.exports = {
       },
       p3_age: {
         type: Sequelize.INTEGER
+      },
+      p3_gender: {
+        type: Sequelize.ENUM('M', 'F', 'T')
       },
       p3_status: {
         type: Sequelize.STRING
@@ -45,6 +55,9 @@ module.exports = {
       p4_age: {
         type: Sequelize.INTEGER
       },
+      p4_gender: {
+        type: Sequelize.ENUM('M', 'F', 'T')
+      },
       p4_status: {
         type: Sequelize.STRING
       },
@@ -54,6 +67,9 @@ module.exports = {
       p5_age: {
         type: Sequelize.INTEGER
       },
+      p5_gender: {
+        type: Sequelize.ENUM('M', 'F', 'T')
+      },
       p5_status: {
         type: Sequelize.STRING
       },
@@ -62,6 +78,9 @@ module.exports = {
       },
       p6_age: {
         type: Sequelize.INTEGER
+      },
+      p6_gender: {
+        type: Sequelize.ENUM('M', 'F', 'T')
       },
       p6_status: {
         type: Sequelize.STRING

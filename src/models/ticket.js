@@ -9,6 +9,10 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      this.belongsTo(models.Passenger, {
+        foreignKey: 'passenger_id',
+        onDelete: 'CASCADE'
+      })
     }
   }
   Ticket.init(

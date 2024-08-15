@@ -32,7 +32,13 @@ module.exports = {
       },
       passenger_id: {
         type: Sequelize.INTEGER,
-        allowNull: false
+        allowNull: false,
+        onDelete: 'CASCADE',
+        references: {
+          model: 'Passengers',
+          key: 'id',
+          as: 'passenger_id'
+        }
       },
       booked: {
         type: Sequelize.DATE,

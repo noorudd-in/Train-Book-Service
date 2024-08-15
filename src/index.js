@@ -2,6 +2,7 @@ const express = require('express');
 const {PORT} = require('./config/constants')
 const v1Routes = require('./routes/index');
 
+const app = express()
 app.use(express.json());
 app.use(express.urlencoded({extended: true}))
 
