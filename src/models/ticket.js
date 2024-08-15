@@ -25,7 +25,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
-      schedule_id: {
+      from_schedule_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      to_schedule_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },

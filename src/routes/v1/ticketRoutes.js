@@ -6,13 +6,14 @@ const {
   updateTicket,
   getTicket
 } = require("../../controllers/ticketController");
-const { validateCreateBooking, validateUpdateBooking } = require('../../middlewares/index')
+const { validateCreateBooking, validateUpdateBooking, isLoggedIn } = require('../../middlewares/index')
 
-router.post('/booking', validateCreateBooking, createTicket);
+
 
 // Routes available to users
+router.post('/booking', validateCreateBooking, isLoggedIn, createTicket);
 // Cancel a ticket (Update the ticket status)
-router.patch('/ticket/:id', validateUpdateBooking, updateTicket);
+router.patch('/ticket/:id', validateUpdateBooking, isLoggedIn, updateTicket);
 // Get the details of thier ticket
 router.get('/pnr/:pnr', getTicket);
 
