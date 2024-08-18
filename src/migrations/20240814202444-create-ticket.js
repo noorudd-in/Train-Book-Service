@@ -14,7 +14,7 @@ module.exports = {
         allowNull: false
       },
       pnr: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
         allowNull: false
       },
       from_schedule_id: {
