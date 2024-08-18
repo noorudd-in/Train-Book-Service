@@ -32,7 +32,7 @@ const isLoggedIn = async (req, res, next) => {
       error: "Unauthorized",
     });
   }
-  if (!req.body.userId) {
+  if (!req.body.user_id) {
     return res.status(client.BAD_REQUEST).json({
       data: null,
       message: "Unknown user. Please provide the userId.",
@@ -41,7 +41,7 @@ const isLoggedIn = async (req, res, next) => {
     });
   }
 
-  const user = await fetchUser(req.headers.authtoken, req.body.userId);
+  const user = await fetchUser(req.headers.authtoken, req.body.user_id);
   if (!user.success) {
     return res.status(user.status).json({
       data: user.data,

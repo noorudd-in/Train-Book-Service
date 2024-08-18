@@ -1,10 +1,10 @@
 const { client } = require("../utils/statusCodes");
 
 const validateCreateBooking = (req, res, next) => {
-  if (!req.body.user_id) {
+  if (!req.body.train_number) {
     return res.status(client.BAD_REQUEST).json({
       data: null,
-      message: "User Id is required.",
+      message: "Train Number is required.",
       success: false,
       error: "Invalid request",
     });
@@ -113,7 +113,7 @@ const validateUpdateBooking = (req, res, next) => {
 };
 
 const validateCreatePassenger = (req, res, next) => {
-  if (!req.body.p1_name) {
+  if (!req.body.p1_name || !req.body.p1_age || !req.body.p1_gender) {
     return res.status(client.BAD_REQUEST).json({
       data: null,
       message: "Passenger one name is required.",
@@ -121,39 +121,53 @@ const validateCreatePassenger = (req, res, next) => {
       error: "Invalid request",
     });
   }
-  if (!req.body.p1_age) {
-    return res.status(client.BAD_REQUEST).json({
-      data: null,
-      message: "Passenger one age is required.",
-      success: false,
-      error: "Invalid request",
-    });
+
+  for (let i = 1; i <= 6; i++) {
+    const name = req.body[`p${i}_name`];
+    const age = req.body[`p${i}_age`];
+    const gender = req.body[`p${i}_gender`];
+    if (name) {
+      if (Number(age) > 100 || Number(age) < 1) {
+        return res.status(client.BAD_REQUEST).json({
+          data: null,
+          message: `Invalid age for passenger ${i}`,
+          success: false,
+          error: "Invalid request",
+        });
+      }
+      if (!["M", "F", "T"].includes(gender)) {
+        console.log("TRUEEE");
+        return res.status(client.BAD_REQUEST).json({
+          data: null,
+          message: `Invalid gender for passenger ${i}. Allowed values are 'M', 'F' or 'T'`,
+          success: false,
+          error: "Invalid request",
+        });
+      }
+      // If selected category is ladies then check thier gender.
+      if (req.body.category == "ladies" && gender != 'F') {
+        return res.status(client.BAD_REQUEST).json({
+          data: null,
+          message:
+            "Since you selected ladies as category, all passengers should be female.",
+          success: false,
+          error: "Invalid request",
+        });
+      }
+
+      // If selected category is senior citizen then check thier age.
+      if (req.body.category == "senior_citizen" && Number(age) < 60) {
+        return res.status(client.BAD_REQUEST).json({
+          data: null,
+          message:
+            "All passengers should be above 60 years since you selected category as senior citizen.",
+          success: false,
+          error: "Invalid request",
+        });
+      }
+    }
   }
-  if (!req.body.p1_status) {
-    return res.status(client.BAD_REQUEST).json({
-      data: null,
-      message: "Passenger one ticket status is required.",
-      success: false,
-      error: "Invalid request",
-    });
-  }
-  if (!req.body.p1_gender) {
-    return res.status(client.BAD_REQUEST).json({
-      data: null,
-      message: "Passenger one gender is required.",
-      success: false,
-      error: "Invalid request",
-    });
-  }
-  if (!["M", "F", "T"].includes(req.body.p1_gender)) {
-    return res.status(client.BAD_REQUEST).json({
-      data: null,
-      message:
-        "Invalid gender. Allowed values are 'M', 'F' or 'T'",
-      success: false,
-      error: "Invalid request",
-    });
-  }
+
   next();
 };
 

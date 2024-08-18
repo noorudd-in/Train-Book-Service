@@ -5,7 +5,7 @@ const ticketService = new TicketService();
 
 const createTicket = async (req, res) => {
   try {
-    const ticket = await ticketService.create(req.body);
+    const ticket = await ticketService.create(req.body, req.headers);
     if (ticket.success == false) {
       return res.status(server.INTERNAL_SERVER_ERROR).json({
         data: null,
