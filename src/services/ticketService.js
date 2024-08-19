@@ -246,9 +246,9 @@ class TicketService {
     }
   }
 
-  async update(id, data) {
+  async cancelTicket(pnr) {
     try {
-      const result = await this.ticketRepository.update(id, data);
+      const result = await this.ticketRepository.cancelTicket(pnr);
       return result;
     } catch (error) {
       console.log("Something went wrong at service layer");

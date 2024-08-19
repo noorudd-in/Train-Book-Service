@@ -30,28 +30,28 @@ const createTicket = async (req, res) => {
   }
 };
 
-const updateTicket = async (req, res) => {
+const cancelTicket = async (req, res) => {
   try {
-    const ticket = await ticketService.update(req.params.id, req.body);
+    const ticket = await ticketService.cancelTicket(req.params.pnr);
     if (ticket[0] == 0 || !ticket) {
       return res.status(server.INTERNAL_SERVER_ERROR).json({
         data: null,
         success: false,
-        message: "Ticket you want to update, doesn't exist!",
+        message: "Ticket you want to cancel, doesn't exist!",
         error: "Ticket not found",
       });
     }
     return res.status(success.CREATED).json({
       data: ticket,
       success: true,
-      message: "Ticket updated successfully.",
+      message: "Ticket has been cancelled.",
       error: null,
     });
   } catch (error) {
     res.status(server.INTERNAL_SERVER_ERROR).json({
       data: null,
       success: false,
-      message: "Cannot update a ticket.",
+      message: "Cannot cancel a ticket.",
       error: error,
     });
   }
@@ -91,6 +91,6 @@ const getTicket = async (req, res) => {
 
 module.exports = {
   createTicket,
-  updateTicket,
+  cancelTicket,
   getTicket,
 };

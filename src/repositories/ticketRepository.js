@@ -16,11 +16,14 @@ class TicketRepository {
     }
   }
 
-  async update(id, data) {
+  async cancelTicket(pnr) {
     try {
-      const result = await Ticket.update(data, {
+      const result = await Ticket.update({
+        status: 'cancelled',
+        cancelled: new Date()
+      }, {
         where: {
-          id: id,
+          pnr: pnr,
         },
       });
       return result;

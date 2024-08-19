@@ -3,17 +3,17 @@ const router = express.Router();
 
 const {
   createTicket,
-  updateTicket,
+  cancelTicket,
   getTicket,
 } = require("../../controllers/ticketController");
-const { validateCreateBooking, validateUpdateBooking, isLoggedIn, validateCreatePassenger, validateGetTicket } = require('../../middlewares/index')
+const { validateCreateBooking, isLoggedIn, validateCreatePassenger, validateGetTicket } = require('../../middlewares/index')
 
 
 
 // Routes available to users
 router.post('/booking', isLoggedIn, validateCreatePassenger, validateCreateBooking, createTicket);
 // Cancel a ticket (Update the ticket status)
-router.patch('/ticket/:id', validateUpdateBooking, isLoggedIn, updateTicket);
+router.patch('/ticket/:pnr', isLoggedIn, cancelTicket);
 // Get the details of thier ticket
 router.post('/pnr/:pnr', isLoggedIn, validateGetTicket, getTicket);
 
