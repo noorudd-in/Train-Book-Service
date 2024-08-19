@@ -171,8 +171,21 @@ const validateCreatePassenger = (req, res, next) => {
   next();
 };
 
+const validateGetTicket = (req, res, next) => {
+  if (!req.params.pnr) {
+    return res.status(client.BAD_REQUEST).json({
+      data: null,
+      message: "PNR number is required.",
+      success: false,
+      error: "Invalid request",
+    });
+  }
+  next()
+}
+
 module.exports = {
   validateCreateBooking,
   validateUpdateBooking,
   validateCreatePassenger,
+  validateGetTicket
 };

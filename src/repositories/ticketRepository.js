@@ -36,9 +36,13 @@ class TicketRepository {
     }
   }
 
-  async get(id) {
+  async getTicket(data) {
     try {
-      const result = Ticket.findByPk(id);
+      const result = await Ticket.findOne({
+        where: {
+          pnr: data.pnr
+        }
+      });
       if (!result) {
         return null;
       }

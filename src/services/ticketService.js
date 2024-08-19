@@ -1,13 +1,13 @@
 const { SEARCH_SERVICE_URL } = require("../config/constants");
 const { TicketRepository } = require("../repositories/index");
-const PassengerService = require('./passengerService')
+const PassengerService = require("./passengerService");
 const passengerService = new PassengerService();
 const axios = require("axios");
 class TicketService {
   constructor() {
     this.ticketRepository = new TicketRepository();
   }
-  
+
   async #getSeats(body, header) {
     let category = body.category;
     const seats = await axios.post(
@@ -27,14 +27,14 @@ class TicketService {
     return seats.data.data[category];
   }
 
-  async #updateSeats (body, header, new_seats) {
-    const type = body.category == 'general' ? body.class : body.category
+  async #updateSeats(body, header, new_seats) {
+    const type = body.category == "general" ? body.class : body.category;
     const updatedSeats = await axios.post(
       `${SEARCH_SERVICE_URL}/train/${body.train_number}`,
       {
         user_id: body.user_id,
         type: type,
-        new_seats: new_seats
+        new_seats: new_seats,
       },
       {
         headers: {
@@ -161,33 +161,86 @@ class TicketService {
     return `${status}/${className}/${currentSeats}/${berth}`;
   }
 
+  async #fetchPassengers(id) {
+    const data = await passengerService.get(id);
+    let details = {
+      p1_name: data.p1_name,
+      p1_age: data.p1_age,
+      p1_gender: data.p1_gender,
+      p1_status: data.p1_status,
+    };
+    for (let i = 2; i <= 6; i++) {
+      if (data[`p${i}_name`]) {
+        details = {
+          ...details,
+          [`p${i}_name`]: data[`p${i}_name`],
+          [`p${i}_age`]: data[`p${i}_age`],
+          [`p${i}_gender`]: data[`p${i}_gender`],
+          [`p${i}_status`]: data[`p${i}_status`],
+        };
+      }
+    }
+    return details;
+  }
+
+  async #fetchSchedule(id, user_id, authtoken) {
+    const schedule = await axios.post(
+      `${SEARCH_SERVICE_URL}/schedule/${id}`,
+      {
+        user_id: user_id,
+      },
+      {
+        headers: {
+          authtoken: authtoken,
+        },
+      }
+    );
+
+    return schedule?.data?.data;
+  }
+
+  async #fetchTrain(id) {
+    const train = await axios.get(`${SEARCH_SERVICE_URL}/train/${id}`);
+    return train?.data?.data;
+  }
+  async #fetchStation(id) {
+    const station = await axios.get(`${SEARCH_SERVICE_URL}/station/${id}`);
+    return station?.data?.data;
+  }
+
   async create(body, header) {
     try {
       // Get seats
       const seats = await this.#getSeats(body, header);
       // Create Passenger
       const passengers = await this.#createPassenger(body, seats);
-      const passengerResponse = await passengerService.create(passengers.passengers);
+      const passengerResponse = await passengerService.create(
+        passengers.passengers
+      );
       // Create ticket
       const newTicket = {
         user_id: body.user_id,
         pnr: Date.now(),
         from_schedule_id: body.from_schedule_id,
         to_schedule_id: body.to_schedule_id,
-        status: 'booked',
+        status: "booked",
         class: body.class,
         category: body.category,
         passenger_id: passengerResponse.id,
         booked: new Date(),
       };
-      console.log('ok till 183', newTicket)
+      console.log("ok till 183", newTicket);
       const result = await this.ticketRepository.create(newTicket);
-      console.log('ok till 183', result)
+      console.log("ok till 183", result);
       // Update seats
-      const updatesSeats = await this.#updateSeats(body, header, passengers.seats)
+      const updatesSeats = await this.#updateSeats(
+        body,
+        header,
+        passengers.seats
+      );
       return result;
     } catch (error) {
-      console.log(error)
+      console.log(error);
       console.log("Something went wrong at service layer");
       throw { error };
     }
@@ -203,12 +256,48 @@ class TicketService {
     }
   }
 
-  async get(id) {
+  async getTicket(data) {
     try {
-      const result = this.ticketRepository.get(id);
-      return result;
+      const result = await this.ticketRepository.getTicket(data);
+      const passengers = await this.#fetchPassengers(result["passenger_id"]);
+      const fromSchedule = await this.#fetchSchedule(
+        result["from_schedule_id"],
+        data["user_id"],
+        data.authtoken
+      );
+      const toSchedule = await this.#fetchSchedule(
+        result["to_schedule_id"],
+        data["user_id"],
+        data.authtoken
+      );
+      const train = await this.#fetchTrain(fromSchedule["train_id"]);
+      const fromStation = await this.#fetchStation(fromSchedule["station_id"]);
+      const toStation = await this.#fetchStation(toSchedule["station_id"]);
+      return {
+        id: result.id,
+        pnr: result.pnr,
+        status: result.status,
+        class: result.class,
+        category: result.category,
+        booked: result.booked,
+        cancelled: result.cancelled,
+        train: {
+          number: train.number,
+          name: train.name
+        },
+        schedule: {
+          from_station_name: fromStation.name,
+          from_station_code: fromStation.code,
+          to_station_name: toStation.name,
+          to_station_code: toStation.code,
+          departure: fromSchedule.departure,
+          arrival: toSchedule.arrival
+        },
+        passengers: passengers
+      };
     } catch (error) {
       console.log("Something went wrong at service layer");
+      console.log(error);
       throw { error };
     }
   }

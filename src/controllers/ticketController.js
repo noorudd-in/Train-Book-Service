@@ -59,12 +59,16 @@ const updateTicket = async (req, res) => {
 
 const getTicket = async (req, res) => {
   try {
-    const ticket = await ticketService.get(req.params.id);
+    const ticket = await ticketService.getTicket({
+      pnr: req.params.pnr,
+      user_id: req.body.user_id,
+      authtoken: req.headers.authtoken
+    });
     if (!ticket) {
       return res.status(client.NOT_FOUND).json({
         data: ticket,
         success: false,
-        message: "Ticket you specified doesn't exist!",
+        message: "Invalid PNR!",
         error: "Ticket not found",
       });
     }
@@ -75,6 +79,7 @@ const getTicket = async (req, res) => {
       error: null,
     });
   } catch (error) {
+    console.log(error)
     res.status(server.INTERNAL_SERVER_ERROR).json({
       data: null,
       success: false,
