@@ -208,6 +208,23 @@ class TicketService {
     return station?.data?.data;
   }
 
+  #getTotalCost(sleeperCost, bookedClass, totalPassenger){
+    let cost = sleeperCost;
+    if (bookedClass == '3E') {
+      cost = cost * 2.5
+    }
+    if (bookedClass == '3A') {
+      cost = cost * 3
+    }
+    if (bookedClass == '2A') {
+      cost = cost * 4
+    }
+    if (bookedClass == '1A') {
+      cost = cost * 6
+    }
+    return cost * totalPassenger
+  }
+
   async create(body, header) {
     try {
       // Get seats
@@ -271,6 +288,7 @@ class TicketService {
         data.authtoken
       );
       const train = await this.#fetchTrain(fromSchedule["train_id"]);
+      const totalCost = this.#getTotalCost(train.cost, data.class, Object.keys(passengers).length / 4)
       const fromStation = await this.#fetchStation(fromSchedule["station_id"]);
       const toStation = await this.#fetchStation(toSchedule["station_id"]);
       return {
@@ -279,6 +297,7 @@ class TicketService {
         status: result.status,
         class: result.class,
         category: result.category,
+        total_cost: totalCost,
         booked: result.booked,
         cancelled: result.cancelled,
         train: {
