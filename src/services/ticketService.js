@@ -1,7 +1,7 @@
 const axios = require("axios");
 const { SEARCH_SERVICE_URL, AUTH_SERVICE_URL } = require("../config/constants");
 const { generatePDF } = require("../utils/pdfUtils");
-const sendCreateTicketEmail = require("../utils/sendEmail");
+const {sendCreateTicketEmail, sendCancelTicketEmail} = require("../utils/sendEmail");
 const { TicketRepository } = require("../repositories/index");
 const PassengerService = require("./passengerService");
 const passengerService = new PassengerService();
@@ -346,9 +346,14 @@ class TicketService {
         }
       );
       const result = await this.ticketRepository.cancelTicket(data.pnr);
-      if (result[0] != 0) {
-        //data
-      }
+      if (result?.cancelled) {
+        sendCancelTicketEmail(
+          user.data.data.email,
+          user.data.data.full_name,
+          data.pnr,
+          result.total_cost * 0.8
+        );
+      } 
       return result;
     } catch (error) {
       console.log("Something went wrong at service layer");
@@ -359,6 +364,7 @@ class TicketService {
   async getTicket(data) {
     try {
       const result = await this.ticketRepository.getTicket(data);
+      console.log(result)
       const passengers = await this.#fetchPassengers(result["passenger_id"]);
       const fromSchedule = await this.#fetchSchedule(
         result["from_schedule_id"],
@@ -379,7 +385,7 @@ class TicketService {
         status: result.status,
         class: result.class,
         category: result.category,
-        total_cost: totalCost,
+        total_cost: result.total_cost,
         booked: result.booked,
         cancelled: result.cancelled,
         train: {

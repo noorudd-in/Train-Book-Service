@@ -1,5 +1,8 @@
 const transporter = require("../config/mailer");
-const { createTicketEmailBody } = require("./htmlContent");
+const {
+  createTicketEmailBody,
+  cancelTicketEmailBody,
+} = require("./htmlContent");
 
 function sendCreateTicketEmail(to, fullName, pnr) {
   const emailBody = createTicketEmailBody
@@ -28,4 +31,26 @@ function sendCreateTicketEmail(to, fullName, pnr) {
   });
 }
 
-module.exports = sendCreateTicketEmail;
+function sendCancelTicketEmail(to, fullName, pnr, refund) {
+  const emailBody = cancelTicketEmailBody
+    .replace("{{fullName}}", fullName)
+    .replace("{{pnr}}", pnr)
+    .replace("{{refund}}", refund);
+
+  const mailOptions = {
+    from: "Tickets <tickets@noorudd.in>",
+    to,
+    subject: "Ticket Cancellation Confirmation",
+    html: emailBody,
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error("Error sending email:", error);
+    } else {
+      console.log("Email sent:", info.response);
+    }
+  });
+}
+
+module.exports = { sendCreateTicketEmail, sendCancelTicketEmail };

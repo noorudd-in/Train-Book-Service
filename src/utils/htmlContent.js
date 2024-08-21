@@ -168,7 +168,7 @@ const ticketContent = `
 </body>
 </html>
 
-`
+`;
 
 const passengerContent = `
 <div class="passenger-item">
@@ -189,7 +189,7 @@ const passengerContent = `
         <span class="value">{{p_status}}</span>
     </div>
 </div>
-`
+`;
 
 const createTicketEmailBody = `
 <!DOCTYPE html>
@@ -247,8 +247,67 @@ const createTicketEmailBody = `
   </div>
 </body>
 </html>
-`
+`;
+
+const cancelTicketEmailBody = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ticket Confirmation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+      color: #333;
+    }
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #ffffff;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    .content {
+      padding: 20px;
+    }
+    .content p {
+      font-size: 16px;
+      margin: 10px 0;
+    }
+    .footer {
+      text-align: center;
+      padding: 10px;
+      background-color: #f4f4f4;
+      font-size: 14px;
+      color: #777;
+      border-radius: 0 0 5px 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="content">
+      <h1>Your ticket has been cancelled!</h1>
+      <p>Dear {{fullName}},</p>
+      <p>We wish to inform you that your ticket againt PNR Number: {{pnr}} has been cancelled successfully as per your request. The refund amount of Rs. {{refund}} will be refunded back to your respective account shortly.</p>
+      <p>Best regards,<br>Noorudd.in</p>
+    </div>
+    <div class="footer">
+      <p>This is an automated email. Please do not reply.</p>
+    </div>
+  </div>
+</body>
+</html>
+`;
 
 module.exports = {
-    ticketContent, passengerContent, createTicketEmailBody
-}
+  ticketContent,
+  passengerContent,
+  createTicketEmailBody,
+  cancelTicketEmailBody,
+};

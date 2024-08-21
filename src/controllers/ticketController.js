@@ -32,13 +32,17 @@ const createTicket = async (req, res) => {
 
 const cancelTicket = async (req, res) => {
   try {
-    const ticket = await ticketService.cancelTicket(req.params.pnr);
-    if (ticket[0] == 0 || !ticket) {
+    const ticket = await ticketService.cancelTicket({
+      user_id: req.body.user_id,
+      authtoken: req.headers.authtoken,
+      pnr: req.params.pnr
+    });
+    if (ticket?.id == undefined) {
       return res.status(server.INTERNAL_SERVER_ERROR).json({
         data: null,
         success: false,
-        message: "Ticket you want to cancel, doesn't exist!",
-        error: "Ticket not found",
+        message: ticket.message,
+        error: ticket.error,
       });
     }
     return res.status(success.CREATED).json({
@@ -62,7 +66,7 @@ const getTicket = async (req, res) => {
     const ticket = await ticketService.getTicket({
       pnr: req.params.pnr,
       user_id: req.body.user_id,
-      authtoken: req.headers.authtoken
+      authtoken: req.headers.authtoken,
     });
     if (!ticket) {
       return res.status(client.NOT_FOUND).json({
@@ -79,7 +83,7 @@ const getTicket = async (req, res) => {
       error: null,
     });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(server.INTERNAL_SERVER_ERROR).json({
       data: null,
       success: false,

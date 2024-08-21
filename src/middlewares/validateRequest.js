@@ -136,7 +136,6 @@ const validateCreatePassenger = (req, res, next) => {
         });
       }
       if (!["M", "F", "T"].includes(gender)) {
-        console.log("TRUEEE");
         return res.status(client.BAD_REQUEST).json({
           data: null,
           message: `Invalid gender for passenger ${i}. Allowed values are 'M', 'F' or 'T'`,
