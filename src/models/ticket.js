@@ -25,6 +25,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      total_cost: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
       from_schedule_id: {
         type: DataTypes.INTEGER,
         allowNull: false,

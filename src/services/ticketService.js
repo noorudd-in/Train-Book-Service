@@ -227,51 +227,6 @@ class TicketService {
     return cost * totalPassenger;
   }
 
-  #createPDFTicket = async (body, headers, pnr, booked, passengers) => {
-    const fromSchedule = await this.#fetchSchedule(
-      body["from_schedule_id"],
-      body["user_id"],
-      headers.authtoken
-    );
-    const toSchedule = await this.#fetchSchedule(
-      body["to_schedule_id"],
-      body["user_id"],
-      headers.authtoken
-    );
-    const train = await this.#fetchTrain(fromSchedule["train_id"]);
-    const totalCost = this.#getTotalCost(
-      train.cost,
-      body.class,
-      Object.keys(passengers).length / 4
-    );
-    const fromStation = await this.#fetchStation(fromSchedule["station_id"]);
-    const toStation = await this.#fetchStation(toSchedule["station_id"]);
-    const emailTicketData = {
-      pnr: pnr,
-      status: "booked",
-      class: body.class,
-      category: body.category,
-      total_cost: totalCost,
-      booked: booked.toString().split(" GMT")[0],
-      cancelled: null,
-      train: {
-        number: train.number,
-        name: train.name,
-      },
-      schedule: {
-        from_station_name: fromStation.name,
-        from_station_code: fromStation.code,
-        to_station_name: toStation.name,
-        to_station_code: toStation.code,
-        departure: fromSchedule.departure,
-        arrival: toSchedule.arrival,
-      },
-      passengers: passengers.passengers,
-    };
-
-    return emailTicketData;
-  };
-
   async create(body, header) {
     try {
       const user = await axios.get(
@@ -284,17 +239,40 @@ class TicketService {
       );
       // Get seats
       const seats = await this.#getSeats(body, header);
+
       // Create Passenger
       const passengers = await this.#createPassenger(body, seats);
       const passengerResponse = await passengerService.create(
         passengers.passengers
       );
+      const fromSchedule = await this.#fetchSchedule(
+        body["from_schedule_id"],
+        body["user_id"],
+        header.authtoken
+      );
+      const toSchedule = await this.#fetchSchedule(
+        body["to_schedule_id"],
+        body["user_id"],
+        header.authtoken
+      );
+      const fromStation = await this.#fetchStation(fromSchedule["station_id"]);
+      const toStation = await this.#fetchStation(toSchedule["station_id"]);
+      const train = await this.#fetchTrain(fromSchedule["train_id"]);
+      const totalCost = this.#getTotalCost(
+        train.cost,
+        body.class,
+        Object.keys(passengers.passengers).length / 4
+      );
+
       // Create ticket
       const pnr = Date.now();
       const booked = new Date();
+
+      // Send this ticket as response
       const newTicket = {
         user_id: body.user_id,
         pnr: pnr,
+        total_cost: totalCost,
         from_schedule_id: body.from_schedule_id,
         to_schedule_id: body.to_schedule_id,
         status: "booked",
@@ -303,15 +281,33 @@ class TicketService {
         passenger_id: passengerResponse.id,
         booked: booked,
       };
-      // Generate ticket's pdf to sent over email.
-      const emailTicketPDF = await this.#createPDFTicket(
-        body,
-        header,
-        pnr,
-        booked,
-        passengers
-      );
+      // Send this ticket to user's email
+      const emailTicketData = {
+        pnr: pnr,
+        status: "booked",
+        class: body.class,
+        category: body.category,
+        total_cost: totalCost,
+        booked: booked.toString().split(" GMT")[0],
+        cancelled: null,
+        train: {
+          number: train.number,
+          name: train.name,
+        },
+        schedule: {
+          from_station_name: fromStation.name,
+          from_station_code: fromStation.code,
+          to_station_name: toStation.name,
+          to_station_code: toStation.code,
+          departure: fromSchedule.departure,
+          arrival: toSchedule.arrival,
+        },
+        passengers: passengers.passengers,
+      };
+
+      // Add ticket to DB
       const result = await this.ticketRepository.create(newTicket);
+
       // Update seats
       const updatesSeats = await this.#updateSeats(
         body,
@@ -320,7 +316,7 @@ class TicketService {
       );
 
       // Send email once ticket is created.
-      generatePDF(emailTicketPDF, "data/ticket.pdf")
+      generatePDF(emailTicketData, "data/ticket.pdf")
         .then(() => {
           sendCreateTicketEmail(
             user.data.data.email,
@@ -330,6 +326,7 @@ class TicketService {
           console.log("PDF generated successfully");
         })
         .catch((err) => console.error("Error generating PDF:", err));
+
       return result;
     } catch (error) {
       console.log(error);
@@ -338,9 +335,20 @@ class TicketService {
     }
   }
 
-  async cancelTicket(pnr) {
+  async cancelTicket(data) {
     try {
-      const result = await this.ticketRepository.cancelTicket(pnr);
+      const user = await axios.get(
+        `${AUTH_SERVICE_URL}/profile/${data.user_id}`,
+        {
+          headers: {
+            authtoken: data.authtoken,
+          },
+        }
+      );
+      const result = await this.ticketRepository.cancelTicket(data.pnr);
+      if (result[0] != 0) {
+        //data
+      }
       return result;
     } catch (error) {
       console.log("Something went wrong at service layer");
@@ -363,11 +371,6 @@ class TicketService {
         data.authtoken
       );
       const train = await this.#fetchTrain(fromSchedule["train_id"]);
-      const totalCost = this.#getTotalCost(
-        train.cost,
-        data.class,
-        Object.keys(passengers).length / 4
-      );
       const fromStation = await this.#fetchStation(fromSchedule["station_id"]);
       const toStation = await this.#fetchStation(toSchedule["station_id"]);
       return {

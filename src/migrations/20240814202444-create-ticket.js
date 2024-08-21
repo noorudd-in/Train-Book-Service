@@ -17,6 +17,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
+      total_cost: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
       from_schedule_id: {
         type: Sequelize.INTEGER,
         allowNull: false
