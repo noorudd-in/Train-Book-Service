@@ -364,7 +364,14 @@ class TicketService {
   async getTicket(data) {
     try {
       const result = await this.ticketRepository.getTicket(data);
-      console.log(result)
+      if (!result) {
+        return null
+      }
+      if (result.user_id != data.user_id) {
+        return {
+          status: 400
+        }
+      }
       const passengers = await this.#fetchPassengers(result["passenger_id"]);
       const fromSchedule = await this.#fetchSchedule(
         result["from_schedule_id"],

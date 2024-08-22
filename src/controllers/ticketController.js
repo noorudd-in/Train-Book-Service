@@ -76,6 +76,14 @@ const getTicket = async (req, res) => {
         error: "Ticket not found",
       });
     }
+    if (ticket.status == 400) {
+      return res.status(client.BAD_REQUEST).json({
+        data: null,
+        success: false,
+        message: "Unauthorized user",
+        error: "Unauthorized",
+      });
+    }
     return res.status(success.OK).json({
       data: ticket,
       success: true,
