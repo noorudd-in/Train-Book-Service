@@ -1,5 +1,15 @@
-const puppeteer = require("puppeteer");
 const { ticketContent, passengerContent } = require("./htmlContent");
+const pdf = require('html-pdf');
+const options = {
+  format: 'A4',
+  printBackground: true,
+  border: {
+    top: '10mm',
+    right: '10mm',
+    bottom: '10mm',
+    left: '10mm',
+  },
+};
 
 const createHTML = (data, ticket, passenger) => {
   let content = ticket;
@@ -41,11 +51,10 @@ const createHTML = (data, ticket, passenger) => {
 
 const generatePDF = async (data, outputPath) => {
   let htmlContent = createHTML(data, ticketContent, passengerContent);
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-  await page.setContent(htmlContent);
-  await page.pdf({ path: outputPath, format: "A4", printBackground: true });
-  await browser.close();
-};
+  pdf.create(htmlContent, options).toFile(outputPath, function (err, res) {
+    if (err) return console.log(err);
+    console.log('PDF generated successfully!');
+  });
+}
 
 module.exports = { generatePDF };
