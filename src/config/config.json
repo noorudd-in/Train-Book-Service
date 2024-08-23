@@ -1,0 +1,17 @@
+{
+  "development": {
+    "username": "root",
+    "password": "YOUR DB PASSWORD",
+    "database": "Trains_Booking_DB_DEV",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "root",
+    "password": "YOUR DB PASSWORD",
+    "database": "Trains_Booking_DB_PROD",
+    "host": "localhost",
+    "port": "3306",
+    "dialect": "mysql"
+  }
+}
